@@ -18,10 +18,8 @@ router.get('/:id', (req, res) => {
 })
 
 router.post('/', fieldsAreValid, (req, res) => {
-  const { name, budget } = req.body;
-
-  db('accounts').insert({ name: name, budget: budget })
-    .then(account => res.status(201).json(account))
+  db('accounts').insert(req.body, 'ids')
+    .then(() => res.status(201).json({ message: 'Added new budget' }))
     .catch(err => res.status(500).json(err))
 })
 
@@ -29,8 +27,8 @@ router.put('/:id', fieldsAreValid, (req, res) => {
   db('accounts')
     .where({ id: req.params.id })
     .update(req.body)
-    .then(account => res.status(201).json(account))
-    .catch(err => res.status(500).json({ error: 'Failed to update.' }))
+    .then(count => res.status(200).json(count))
+    .catch(err => res.status(500).json(err))
 })
 
 router.delete('/:id', (req, res) => {
@@ -38,7 +36,7 @@ router.delete('/:id', (req, res) => {
     .where({ id: req.params.id })
     .del()
     .then(() => res.status(202).json({ error: `The account with the ID ${req.params.id} has been removed.` }))
-    .catch(() => res.status(500).json({ error: 'Failed to update.' }))
+    .catch(err => res.status(500).json(err))
 })
 
 function fieldsAreValid(req, res, next) {
